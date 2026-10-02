@@ -4,13 +4,13 @@ import com.uc.ms_security.dto.role.CreateRoleDTO;
 import com.uc.ms_security.dto.role.RoleResponseDTO;
 import com.uc.ms_security.dto.role.UpdateRoleDTO;
 import com.uc.ms_security.entity.Role;
+import com.uc.ms_security.exception.ApplicationException;
+import com.uc.ms_security.exception.ErrorCase;
 import com.uc.ms_security.mapper.RoleMapper;
 import com.uc.ms_security.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -35,9 +35,9 @@ public class RoleService {
 
     private Role findRole(Long id) {
         return roleRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Rol no encontrado"
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorCase.NOT_FOUND,
+                        "Rol no encontrado con id: " + id
                 ));
     }
 

@@ -4,13 +4,13 @@ import com.uc.ms_security.dto.session.CreateSessionDTO;
 import com.uc.ms_security.dto.session.SessionResponseDTO;
 import com.uc.ms_security.dto.session.UpdateSessionDTO;
 import com.uc.ms_security.entity.Session;
+import com.uc.ms_security.exception.ApplicationException;
+import com.uc.ms_security.exception.ErrorCase;
 import com.uc.ms_security.mapper.SessionMapper;
 import com.uc.ms_security.repository.SessionRepository;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -35,9 +35,9 @@ public class SessionService {
 
     private Session findSession(Long id) {
         return sessionRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Sesión no encontrada"
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorCase.NOT_FOUND,
+                        "Sesión no encontrada con id: " + id
                 ));
     }
 

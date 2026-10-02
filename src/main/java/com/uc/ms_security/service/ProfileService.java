@@ -4,13 +4,13 @@ import com.uc.ms_security.dto.profile.CreateProfileDTO;
 import com.uc.ms_security.dto.profile.ProfileResponseDTO;
 import com.uc.ms_security.dto.profile.UpdateProfileDTO;
 import com.uc.ms_security.entity.Profile;
+import com.uc.ms_security.exception.ApplicationException;
+import com.uc.ms_security.exception.ErrorCase;
 import com.uc.ms_security.mapper.ProfileMapper;
 import com.uc.ms_security.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -35,9 +35,9 @@ public class ProfileService {
 
     private Profile findProfile(Long id) {
         return profileRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Perfil no encontrado"
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorCase.NOT_FOUND,
+                        "Perfil no encontrado con id: " + id
                 ));
     }
 

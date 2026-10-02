@@ -4,13 +4,13 @@ import com.uc.ms_security.dto.permission.CreatePermissionDTO;
 import com.uc.ms_security.dto.permission.PermissionResponseDTO;
 import com.uc.ms_security.dto.permission.UpdatePermissionDTO;
 import com.uc.ms_security.entity.Permission;
+import com.uc.ms_security.exception.ApplicationException;
+import com.uc.ms_security.exception.ErrorCase;
 import com.uc.ms_security.mapper.PermissionMapper;
 import com.uc.ms_security.repository.PermissionRepository;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -35,9 +35,9 @@ public class PermissionService {
 
     private Permission findPermission(Long id) {
         return permissionRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Permiso no encontrado"
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorCase.NOT_FOUND,
+                        "Permiso no encontrado con id: " + id
                 ));
     }
 
