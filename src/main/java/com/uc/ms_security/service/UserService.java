@@ -2,7 +2,9 @@ package com.uc.ms_security.service;
 
 import com.uc.ms_security.dto.user.CreateUserDTO;
 import com.uc.ms_security.dto.user.UpdateUserDTO;
+import com.uc.ms_security.dto.user.UserDetailResponseDTO;
 import com.uc.ms_security.dto.user.UserResponseDTO;
+import com.uc.ms_security.dto.user.UserSessionsResponseDTO;
 import com.uc.ms_security.entity.User;
 import com.uc.ms_security.exception.ApplicationException;
 import com.uc.ms_security.exception.ErrorCase;
@@ -25,7 +27,7 @@ public class UserService {
     public UserResponseDTO create(CreateUserDTO dto) {
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new ApplicationException(
-                    ErrorCase.ALREADY_EXISTS,
+                ErrorCase.ALREADY_EXISTS,
                     "Ya existe un usuario con este email"
             );
         }
@@ -39,9 +41,9 @@ public class UserService {
     }
     private User findUser(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new ApplicationException(
-                        ErrorCase.NOT_FOUND,
-                        "Usuario no encontrado con id: " + id
+            .orElseThrow(() -> new ApplicationException(
+                ErrorCase.NOT_FOUND,
+                "Usuario no encontrado con id: " + id
                 ));
     }
 
@@ -50,11 +52,29 @@ public class UserService {
         return userMapper.toResponseDTO(user);
     }
 
+    public UserDetailResponseDTO findByIdWithProfile(Long id) {
+        User user = userRepository.findWithProfileById(id)
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorCase.NOT_FOUND,
+                        "Usuario no encontrado con id: " + id
+                ));
+        return userMapper.toDetailResponseDTO(user);
+    }
+
+    public UserSessionsResponseDTO findByIdAndSessions(Long id) { //busca un usuario por id y trae sus sesiones asociadas
+        User user = userRepository.findWithSessionsById(id)
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorCase.NOT_FOUND,
+                        "Usuario no encontrado con id: " + id
+                ));
+        return userMapper.toSessionsResponseDTO(user);
+    }
+
     public UserResponseDTO update(Long id, UpdateUserDTO dto) {
         User user = findUser(id);
         if (userRepository.existsByEmailAndIdNot(dto.getEmail(), id)) {
             throw new ApplicationException(
-                    ErrorCase.ALREADY_EXISTS,
+                ErrorCase.ALREADY_EXISTS,
                     "El email pertenece a otro usuario"
             );
         }
@@ -67,3 +87,7 @@ public class UserService {
         userRepository.delete(user);
     }
 }
+
+
+
+

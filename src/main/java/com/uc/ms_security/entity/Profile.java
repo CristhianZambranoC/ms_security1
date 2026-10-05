@@ -27,7 +27,18 @@ public class Profile {
     private String phone;
 
     @Column(
+            name = "birth_date",
             nullable = false
     )
-        private LocalDate birthDate;
+    private LocalDate birthDate;
+
+    @OneToOne(
+            fetch = FetchType.LAZY
+    )
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            unique = true
+    )
+    private User user;
 }
