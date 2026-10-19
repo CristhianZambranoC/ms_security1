@@ -4,6 +4,7 @@ import com.uc.ms_security.dto.user.CreateUserDTO;
 import com.uc.ms_security.dto.user.UpdateUserDTO;
 import com.uc.ms_security.dto.user.UserDetailResponseDTO;
 import com.uc.ms_security.dto.user.UserResponseDTO;
+import com.uc.ms_security.dto.user.UserRolesResponseDTO;
 import com.uc.ms_security.dto.user.UserSessionsResponseDTO;
 import com.uc.ms_security.entity.User;
 import com.uc.ms_security.exception.ApplicationException;
@@ -12,6 +13,7 @@ import com.uc.ms_security.mapper.UserMapper;
 import com.uc.ms_security.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +26,8 @@ public class UserService {
 
     private final UserMapper userMapper;
 
+    private final PasswordEncoder passwordEncoder;
+
     public UserResponseDTO create(CreateUserDTO dto) {
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new ApplicationException(
@@ -31,7 +35,16 @@ public class UserService {
                     "Ya existe un usuario con este email"
             );
         }
-        User user = userMapper.toEntity(dto);
+
+        String encodedPassword = passwordEncoder.encode(
+                dto.getPassword()
+        );
+
+        User user = userMapper.toEntity(
+                dto,
+                encodedPassword
+        );
+
         User savedUser = userRepository.save(user);
         return userMapper.toResponseDTO(savedUser);
     }
@@ -70,6 +83,15 @@ public class UserService {
         return userMapper.toSessionsResponseDTO(user);
     }
 
+    public UserRolesResponseDTO findByIdAndRoles(Long id) { //busca un usuario por id y trae sus roles asociados
+        User user = userRepository.findWithRolesById(id)
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorCase.NOT_FOUND,
+                        "Usuario no encontrado con id: " + id
+                ));
+        return userMapper.toRolesResponseDTO(user);
+    }
+
     public UserResponseDTO update(Long id, UpdateUserDTO dto) {
         User user = findUser(id);
         if (userRepository.existsByEmailAndIdNot(dto.getEmail(), id)) {
@@ -78,7 +100,18 @@ public class UserService {
                     "El email pertenece a otro usuario"
             );
         }
-        userMapper.updateEntity(dto, user);
+        userMapper.updateBasicData(dto, user);
+
+        if (dto.getPassword() != null
+                && !dto.getPassword().isBlank()) {
+
+            String encodedPassword = passwordEncoder.encode(
+                    dto.getPassword()
+            );
+
+            user.setPassword(encodedPassword);
+        }
+
         User updatedUser = userRepository.save(user);
         return userMapper.toResponseDTO(updatedUser);
     }

@@ -1,13 +1,13 @@
 package com.uc.ms_security.controller;
 
-import com.uc.ms_security.dto.permission.CreatePermissionDTO;
-import com.uc.ms_security.dto.permission.PermissionResponseDTO;
-import com.uc.ms_security.dto.permission.UpdatePermissionDTO;
+import com.uc.ms_security.dto.PermissionRequestDTO;
+import com.uc.ms_security.dto.PermissionResponseDTO;
 import com.uc.ms_security.service.PermissionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -19,7 +19,8 @@ public class PermissionController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PermissionResponseDTO create(@Valid @RequestBody CreatePermissionDTO dto) {
+    public PermissionResponseDTO create(
+            @Valid @RequestBody PermissionRequestDTO dto) {
         return permissionService.create(dto);
     }
 
@@ -29,14 +30,15 @@ public class PermissionController {
     }
 
     @GetMapping("/{id}")
-    public PermissionResponseDTO findById(@PathVariable Long id) {
+    public PermissionResponseDTO findById(
+            @PathVariable Long id) {
         return permissionService.findById(id);
     }
 
     @PutMapping("/{id}")
     public PermissionResponseDTO update(
             @PathVariable Long id,
-            @Valid @RequestBody UpdatePermissionDTO dto) {
+            @Valid @RequestBody PermissionRequestDTO dto) {
         return permissionService.update(id, dto);
     }
 

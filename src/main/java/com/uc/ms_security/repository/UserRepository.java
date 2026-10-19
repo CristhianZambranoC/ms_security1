@@ -17,6 +17,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @EntityGraph(attributePaths = {"sessions"})
     Optional<User> findWithSessionsById(Long id); //with funciona como un join fetch, trae las sesiones del usuario si se solicita
+
+    @EntityGraph(attributePaths = {"userRoles", "userRoles.role"}) //hace el cruce de todas las tablas, es el JOIN de user con userRoles y role, para traer todos los roles del usuario      
+    Optional<User> findWithRolesById(Long id);
 }
 
 

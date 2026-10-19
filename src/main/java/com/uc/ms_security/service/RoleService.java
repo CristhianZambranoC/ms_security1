@@ -1,8 +1,8 @@
 package com.uc.ms_security.service;
 
-import com.uc.ms_security.dto.role.CreateRoleDTO;
+import com.uc.ms_security.dto.RolePermissionsResponseDTO;
+import com.uc.ms_security.dto.role.RoleRequestDTO;
 import com.uc.ms_security.dto.role.RoleResponseDTO;
-import com.uc.ms_security.dto.role.UpdateRoleDTO;
 import com.uc.ms_security.entity.Role;
 import com.uc.ms_security.exception.ApplicationException;
 import com.uc.ms_security.exception.ErrorCase;
@@ -22,7 +22,14 @@ public class RoleService {
 
     private final RoleMapper roleMapper;
 
-    public RoleResponseDTO create(CreateRoleDTO dto) {
+    public RoleResponseDTO create(RoleRequestDTO dto) {
+        if (roleRepository.existsByNameIgnoreCase(dto.getName())) {
+            throw new ApplicationException(
+                    ErrorCase.ALREADY_EXISTS,
+                    "Ya existe un rol con ese nombre"
+            );
+        }
+
         Role role = roleMapper.toEntity(dto);
         Role savedRole = roleRepository.save(role);
         return roleMapper.toResponseDTO(savedRole);
@@ -46,8 +53,16 @@ public class RoleService {
         return roleMapper.toResponseDTO(role);
     }
 
-    public RoleResponseDTO update(Long id, UpdateRoleDTO dto) {
+    public RoleResponseDTO update(Long id, RoleRequestDTO dto) {
         Role role = findRole(id);
+
+        if (roleRepository.existsByNameIgnoreCaseAndIdNot(dto.getName(), id)) {
+            throw new ApplicationException(
+                    ErrorCase.ALREADY_EXISTS,
+                    "Ya existe un rol con ese nombre"
+            );
+        }
+
         roleMapper.updateEntity(dto, role);
         Role updatedRole = roleRepository.save(role);
         return roleMapper.toResponseDTO(updatedRole);
@@ -55,6 +70,27 @@ public class RoleService {
 
     public void delete(Long id) {
         Role role = findRole(id);
+
+        if (!role.getUserRoles().isEmpty()) {
+            throw new ApplicationException(
+                    ErrorCase.INVALID_OPERATION,
+                    "No se puede eliminar un rol que está asignado"
+            );
+        }
+
         roleRepository.delete(role);
+    }
+
+    public RolePermissionsResponseDTO findByIdAndPermissions(Long id) {
+        Role role = roleRepository
+                .findWithPermissionsById(id)
+                .orElseThrow(
+                        () -> new ApplicationException(
+                                ErrorCase.NOT_FOUND,
+                                "Rol no encontrado con id: " + id
+                        )
+                );
+
+        return roleMapper.toPermissionsResponseDTO(role);
     }
 }

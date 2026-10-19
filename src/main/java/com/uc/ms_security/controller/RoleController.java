@@ -1,8 +1,8 @@
 package com.uc.ms_security.controller;
 
-import com.uc.ms_security.dto.role.CreateRoleDTO;
+import com.uc.ms_security.dto.RolePermissionsResponseDTO;
+import com.uc.ms_security.dto.role.RoleRequestDTO;
 import com.uc.ms_security.dto.role.RoleResponseDTO;
-import com.uc.ms_security.dto.role.UpdateRoleDTO;
 import com.uc.ms_security.service.RoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class RoleController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public RoleResponseDTO create(@Valid @RequestBody CreateRoleDTO dto) {
+    public RoleResponseDTO create(@Valid @RequestBody RoleRequestDTO dto) {
         return roleService.create(dto);
     }
 
@@ -36,7 +36,7 @@ public class RoleController {
     @PutMapping("/{id}")
     public RoleResponseDTO update(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateRoleDTO dto) {
+            @Valid @RequestBody RoleRequestDTO dto) {
         return roleService.update(id, dto);
     }
 
@@ -44,5 +44,12 @@ public class RoleController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         roleService.delete(id);
+    }
+
+    @GetMapping("/{id}/detail-with-permissions")
+    public RolePermissionsResponseDTO findByIdAndPermissions(
+            @PathVariable Long id) {
+
+        return roleService.findByIdAndPermissions(id);
     }
 }
